@@ -1,13 +1,23 @@
 CC=gcc
-CFLAGS= -Wall -I./inc
+CFLAGS = -Wall -std=c99 -I./inc
 
+EXEC = main
 OUT_DIR=obj
+SRC_DIR=src
 
-$(OUT_DIR)/main.o: src/main.c
-	@$(CC) $(CFLAGS) -c src/main.c -o $(OUT_DIR)/main.o
+# To compile all files from src folder
+SRCS := $(wildcard $(SRC_DIR)/*.c)
+SRCS := $(filter-out $(SRC_DIR)/main.c, $(SRCS))
+OBJS := $(patsubst $(SRC_DIR)/%.c,$(OUT_DIR)/%.o,$(SRCS))
 
-$(OUT_DIR)/main: $(OUT_DIR)/main.o
-	@$(CC) $(CFLAGS) (OUT_DIR)/main.o -o $(OUT_DIR)/main.exe
+$(OUT_DIR)/%.o: $(SRC_DIR)/%.c
+	@$(CC) -c $< -o $@ $(CFLAGS)
 
+$(EXEC): $(OUT_DIR)/main.o $(OBJS)
+	@$(CC) $^ -o $@ 
+
+.PHONY: clean
 clean:
-	@rm -fr $(OUT_DIR)/*
+	@rm -rf $(EXEC) $(OUT_DIR)/*
+
+build: $(EXEC)
