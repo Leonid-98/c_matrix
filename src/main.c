@@ -1,28 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "main.h"
+#define MAX_LINES 100
+#define MAX_LENGTH 100
 
-int main(int argc, char *argv[])
-{
-    char *filename_ptr = "readme.txt";
-    FILE *file_ptr = fopen(filename_ptr, "r");
+int main() {
+    char lines[MAX_LINES][MAX_LENGTH];
+    char filename[] = "readme.txt";
 
-    if (file_ptr == NULL)
-    {
-        printf("Error: could not open file %s", filename_ptr);
-        return 1;
+    // Open the file for reading
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        fprintf(stderr, "Error opening file %s\n", filename);
+        exit(1);
     }
 
-    // reading line by line, max 256 bytes
-    const unsigned MAX_LENGTH = 256;
-    char buffer[MAX_LENGTH];
+    int i = 0;
+    while (fgets(lines[i], MAX_LENGTH, file) != NULL) {
+        // Remove newline character if present
+        if (lines[i][strlen(lines[i])-1] == '\n') {
+            lines[i][strlen(lines[i])-1] = '\0';
+        }
+        i++;
+    }
 
-    while (fgets(buffer, MAX_LENGTH, file_ptr))
-        printf("%s", buffer);
+    // Close the file
+    fclose(file);
 
-    // close the file
-    fclose(file_ptr);
+    // Print the lines stored in the array
+    for (int j = 0; j < i; j++) {
+        printf("%s\n", lines[j]);
+    }
 
     return 0;
 }
