@@ -4,6 +4,7 @@
 #include <ctype.h>
 
 #include "main.h"
+#include "stack.h"
 
 ErrorCode parseLines(char *filename, char result[][MAX_CHARS], int *line_count)
 {
@@ -57,11 +58,26 @@ ErrorCode parseLines(char *filename, char result[][MAX_CHARS], int *line_count)
     return SUCCESS;
 }
 
+void setPartitions(char arr[][MAX_CHARS], int arr_size, int index, stack_st** partitions, int nr_of_partitions)
+{
+    if (index == arr_size) {
+        print_stack(partitions[0]);
+        print_stack(partitions[1]);
+        printf("\n");
+        return;
+    }
 
-
+    for (int i = 0; i < nr_of_partitions; i++)
+    {
+        push(partitions[i], arr[index]);
+        setPartitions(arr, arr_size, index + 1, partitions, nr_of_partitions);
+        pop(partitions[i]);
+    }
+}
 
 int main(int argc, char *argv[])
 {
+    
     char *filename = argv[1];
     char lines[MAX_LINES][MAX_CHARS];
     int line_count = 0;
@@ -93,14 +109,14 @@ int main(int argc, char *argv[])
         break;
     }
 
-    for (int j = 0; j < line_count; j++)
-    {
-        printf("%s\n", lines[j]);
-    }
+    const int K = 3;
 
-    
+    stack_st s1, s2, s3;
+    init(&s1);
+    init(&s2);
+    init(&s3);
+    stack_st* stacks[3] = {&s1, &s2, &s3};
 
-
-
+    setPartitions(lines, line_count, 0, stacks, K);
     return 0;
 }
