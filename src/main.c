@@ -3,70 +3,104 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_LINES 64
-#define MAX_CHARS 64
+#include "main.h"
 
-int main(int argc, char *argv[])
+ErrorCode parseLines(char *filename, char result[][MAX_CHARS], int *line_count)
 {
-    char *filename_ptr = argv[1];
-    if (filename_ptr == NULL)
+    if (filename == NULL)
     {
-        fprintf(stderr, "Error: No file specified");
-        exit(1);
+        return ERROR_NO_FILE_SPECIFIED;
     }
 
-    FILE *file_ptr = fopen(filename_ptr, "r");
+    FILE *file_ptr = fopen(filename, "r");
     if (file_ptr == NULL)
     {
-        fprintf(stderr, "Error: Can't open file '%s'\n", filename_ptr);
-        exit(1);
+        return ERROR_CANT_OPEN_FILE;
     }
 
-
-
-    char words[MAX_LINES][MAX_CHARS];
-    int line_count = 0;
     int char_count = 0;
     char read_buffer[MAX_CHARS];
+
+    int i = 0;
     while (fgets(read_buffer, MAX_CHARS, file_ptr) != NULL)
     {
         if (read_buffer[strlen(read_buffer) - 1] == '\n')
         {
             read_buffer[strlen(read_buffer) - 1] = '\0';
         }
+
         if (strlen(read_buffer) > 0 && isalnum(read_buffer[0]))
         {
-            // Check if word length is less than or equal to 10
             if (strlen(read_buffer) > 10)
             {
-                fprintf(stderr, "Error: word '%s' is longer than 10 characters\n", read_buffer);
-                exit(1);
+                fclose(file_ptr);
+                return ERROR_EXCEEDED_WORD_LENGTH;
             }
-            // Add word to the lines array and update total length
-            strcpy(words[line_count], read_buffer);
-            char_count += strlen(words[line_count]);
-            line_count++;
+
+            strcpy(result[i], read_buffer);
+            char_count += strlen(result[i]);
+            i++;
         }
     }
-
+    *line_count = i;
     fclose(file_ptr);
 
-    // Check total word lenght
     if (char_count == 0)
     {
-        fprintf(stderr, "Error: File dosen't contain any alphabetic or numeric characters\n");
-        return 1;
+        return ERROR_EMPTY_FILE;
     }
     else if (char_count > 100)
     {
-        fprintf(stderr, "Error: total word length exceeds 100 characters\n");
+        return ERROR_EXCEEDED_TOTAL_LENGTH;
+    }
+
+    return SUCCESS;
+}
+
+
+
+
+int main(int argc, char *argv[])
+{
+    char *filename = argv[1];
+    char lines[MAX_LINES][MAX_CHARS];
+    int line_count = 0;
+    ErrorCode error_code = parseLines(filename, lines, &line_count);
+
+    switch (error_code)
+    {
+    case ERROR_NO_FILE_SPECIFIED:
+        fprintf(stderr, "File error: No file specified");
         return 1;
+
+    case ERROR_CANT_OPEN_FILE:
+        fprintf(stderr, "File error: Can't open file '%s'\n", filename);
+        return 1;
+
+    case ERROR_EMPTY_FILE:
+        fprintf(stderr, "File error: File dosen't contain any alphabetic or numeric characters\n");
+        return 1;
+
+    case ERROR_EXCEEDED_WORD_LENGTH:
+        fprintf(stderr, "File error: One of the words is longer than 10 characters\n");
+        return 1;
+
+    case ERROR_EXCEEDED_TOTAL_LENGTH:
+        fprintf(stderr, "File error: Total word length exceeds 100 characters\n");
+        return 1;
+
+    default:
+        break;
     }
 
     for (int j = 0; j < line_count; j++)
     {
-        printf("%s\n", words[j]);
+        printf("%s\n", lines[j]);
     }
+
+    
+
+
 
     return 0;
 }
