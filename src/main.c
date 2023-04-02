@@ -39,11 +39,12 @@ void findValidPartitions(char **arr, int arr_size, stack_st **best_parts, stack_
             {
                 for (int i = 0; i < parts_nr; i++)
                 {
+                    stack_copy(parts[i], best_parts[i]);
                     stack_print(parts[i]);
                 }
                 for (int i = 0; i < parts_nr; i++)
                 {
-                    printf("(%d)", stack_strlen(parts[i]));
+                    // printf("(%d)", stack_strlen(parts[i]));
                 }
                 printf("\n");
             }
@@ -127,6 +128,13 @@ int main(int argc, char *argv[])
         }
 
         findValidPartitions(lines, line_count, best_partitions, partitions, nr_of_parts, 0, 0);
+    }
+
+    printf("\n===============\n");
+    for (int i = 0; i < MATRIX_WIDTH; i++)
+    {
+        stack_print(best_partitions[i]);
+        printf("\n");
     }
 
     // Free allocated memory

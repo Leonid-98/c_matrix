@@ -17,6 +17,7 @@ void stack_push(stack_st *stack, char *str);
 char *stack_pop(stack_st *stack);
 void stack_clear(stack_st *stack);
 int stack_strlen(stack_st *stack);
+void stack_copy(stack_st *src, stack_st *dest);
 void stack_print(stack_st *stack);
 
 #endif

@@ -49,7 +49,7 @@ void stack_clear(stack_st *stack)
     stack->stack_ptr = -1;
 }
 
-int stack_strlen(stack_st *stack) 
+int stack_strlen(stack_st *stack)
 {
     int sum = 0;
     for (int i = stack->stack_ptr; i >= 0; i--)
@@ -57,6 +57,15 @@ int stack_strlen(stack_st *stack)
         sum += strlen(stack->data[i]);
     }
     return sum;
+}
+
+void stack_copy(stack_st *src, stack_st *dest)
+{
+    dest->stack_ptr = src->stack_ptr;
+    for (int i = 0; i <= src->stack_ptr; i++)
+    {
+        strcpy(dest->data[i], src->data[i]);
+    }
 }
 
 void stack_print(stack_st *stack)
