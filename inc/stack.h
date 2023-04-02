@@ -16,7 +16,6 @@ int stack_isFull(stack_st *stack);
 void stack_push(stack_st *stack, char *str);
 char *stack_pop(stack_st *stack);
 void stack_clear(stack_st *stack);
-void stack_free(stack_st *stack);
 void stack_print(stack_st *stack);
 
 #endif

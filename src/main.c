@@ -6,7 +6,7 @@
 #include "main.h"
 #include "stack.h"
 
-ErrorCode parseLines(char *filename, char result[][MAX_CHARS], int *line_count)
+ErrorCode parseLines(char *filename, char **result, int *line_count)
 {
     if (filename == NULL)
     {
@@ -58,7 +58,7 @@ ErrorCode parseLines(char *filename, char result[][MAX_CHARS], int *line_count)
     return SUCCESS;
 }
 
-void setPartitions(char arr[][MAX_CHARS], int arr_size, stack_st **set_partitions, int nr_of_parts, int index, int nos)
+void setPartitions(char **arr, int arr_size, stack_st **set_partitions, int nr_of_parts, int index, int nos)
 {
     if (index == arr_size)
     {
@@ -94,7 +94,11 @@ void setPartitions(char arr[][MAX_CHARS], int arr_size, stack_st **set_partition
 int main(int argc, char *argv[])
 {
     char *filename = argv[1];
-    char lines[MAX_LINES][MAX_CHARS];
+    char *lines[MAX_LINES];
+    for (int i = 0; i < MAX_LINES; i++)
+    {
+        lines[i] = malloc(MAX_CHARS * sizeof(char));
+    }
     int line_count = 0;
     ErrorCode error_code = parseLines(filename, lines, &line_count);
 
@@ -123,7 +127,7 @@ int main(int argc, char *argv[])
     default:
         break;
     }
-    
+
     stack_st *set_partitions[MATRIX_HEIGHT];
     for (int i = 0; i < MATRIX_HEIGHT; i++)
     {
@@ -135,10 +139,20 @@ int main(int argc, char *argv[])
     {
         for (int i = 0; i < MATRIX_HEIGHT; i++)
         {
-            stack_free(set_partitions[i]);
+            stack_clear(set_partitions[i]);
         }
 
         setPartitions(lines, line_count, set_partitions, nr_of_parts, 0, 0);
+    }
+
+    // Free allocated memory
+    for (int i = 0; i < line_count; i++)
+    {
+        free(lines[i]);
+    }
+    for (int i = 0; i < MATRIX_HEIGHT; i++)
+    {
+        free(set_partitions[i]);
     }
 
     return 0;

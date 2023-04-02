@@ -44,7 +44,7 @@ char *stack_pop(stack_st *stack)
     return str;
 }
 
-void stack_free(stack_st *stack)
+void stack_clear(stack_st *stack)
 {
     stack->stack_ptr = -1;
 }
