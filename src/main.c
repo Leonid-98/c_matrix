@@ -14,19 +14,19 @@
  * all such partitions, how array can be splitted and fit into the matrix.
  * By split, I mean set partition: arr = {aa, b, cccc} can be splitted for example as {{aa, b}, {cccc}}, and each element will fit into
  * the matrix
- * 
+ *
  * @param arr all parsed words from file
  * @param arr_size line count
  * @param partitions splitted pieces of `arr`
  * @param nr_of_parts into how many pieces `arr` would be splitted
  * @param index curren inspected element
- * @param emptyCount helps to prevent repeats such {{a}, {b, c}} and {{b, c}, {a}}. Will be counter only one such combination
+ * @param empty_count helps to prevent repeats such {{a}, {b, c}} and {{b, c}, {a}}. Will be counter only one such combination
  */
-void findValidPartitions(char **arr, int arr_size, stack_st **partitions, int nr_of_parts, int index, int emptyCount)
+void findValidPartitions(char **arr, int arr_size, stack_st **partitions, int nr_of_parts, int index, int empty_count)
 {
     if (index == arr_size)
     {
-        if (emptyCount == nr_of_parts)
+        if (empty_count == nr_of_parts)
         {
             bool isFits = true;
             for (int i = 0; i < nr_of_parts; i++)
@@ -51,14 +51,14 @@ void findValidPartitions(char **arr, int arr_size, stack_st **partitions, int nr
         if (stack_isEmpty(partitions[i]))
         {
             stack_push(partitions[i], arr[index]);
-            findValidPartitions(arr, arr_size, partitions, nr_of_parts, index + 1, emptyCount + 1);
+            findValidPartitions(arr, arr_size, partitions, nr_of_parts, index + 1, empty_count + 1);
             stack_pop(partitions[i]);
             break;
         }
         else
         {
             stack_push(partitions[i], arr[index]);
-            findValidPartitions(arr, arr_size, partitions, nr_of_parts, index + 1, emptyCount);
+            findValidPartitions(arr, arr_size, partitions, nr_of_parts, index + 1, empty_count);
             stack_pop(partitions[i]);
         }
     }
@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
         break;
     }
 
-    // Prepare containers to store all possible partitions of a array
-    stack_st *partitions[MATRIX_HEIGHT];
+    // Prepare containers to store all valid partitions
+    stack_st *partitions[MATRIX_HEIGHT]; // array os stacks {stack1, stack2}
     for (int i = 0; i < MATRIX_HEIGHT; i++)
     {
         partitions[i] = malloc(sizeof(stack_st));
