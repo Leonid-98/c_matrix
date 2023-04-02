@@ -11,38 +11,39 @@
 
 /**
  * @brief This function takes as an argument an array of strings (2d char array) and stores to the `result`
- * all such partitions, how array can be splitted and fit into the matrix.
+ * all such parts, how array can be splitted and fit into the matrix.
  * By split, I mean set partition: arr = {aa, b, cccc} can be splitted for example as {{aa, b}, {cccc}}, and each element will fit into
  * the matrix
  *
  * @param arr all parsed words from file
  * @param arr_size line count
- * @param partitions splitted pieces of `arr`
- * @param nr_of_parts into how many pieces `arr` would be splitted
- * @param index curren inspected element
- * @param empty_count helps to prevent repeats such {{a}, {b, c}} and {{b, c}, {a}}. Will be counter only one such combination
+ * @param best_parts tidiest combination of parts
+ * @param parts splitted pieces of `arr`
+ * @param parts_nr into how many pieces `arr` would be splitted
+ * @param idx curren inspected element
+ * @param empty_cnt helps to prevent repeats such {{a}, {b, c}} and {{b, c}, {a}}. Will be counter only one such combination
  */
-void findValidPartitions(char **arr, int arr_size, stack_st **partitions, int nr_of_parts, int index, int empty_count)
+void findValidPartitions(char **arr, int arr_size, stack_st **best_parts, stack_st **parts, int parts_nr, int idx, int empty_cnt)
 {
-    if (index == arr_size)
+    if (idx == arr_size)
     {
-        if (empty_count == nr_of_parts)
+        if (empty_cnt == parts_nr)
         {
             bool isFits = true;
-            for (int i = 0; i < nr_of_parts; i++)
+            for (int i = 0; i < parts_nr; i++)
             {
-                isFits = isFits && stack_strlen(partitions[i]) <= MATRIX_WIDTH;
+                isFits = isFits && stack_strlen(parts[i]) <= MATRIX_WIDTH;
             }
 
             if (isFits)
             {
-                for (int i = 0; i < nr_of_parts; i++)
+                for (int i = 0; i < parts_nr; i++)
                 {
-                    stack_print(partitions[i]);
+                    stack_print(parts[i]);
                 }
-                for (int i = 0; i < nr_of_parts; i++)
+                for (int i = 0; i < parts_nr; i++)
                 {
-                    printf("(%d)", stack_strlen(partitions[i]));
+                    printf("(%d)", stack_strlen(parts[i]));
                 }
                 printf("\n");
             }
@@ -50,20 +51,20 @@ void findValidPartitions(char **arr, int arr_size, stack_st **partitions, int nr
         return;
     }
 
-    for (int i = 0; i < nr_of_parts; i++)
+    for (int i = 0; i < parts_nr; i++)
     {
-        if (stack_isEmpty(partitions[i]))
+        if (stack_isEmpty(parts[i]))
         {
-            stack_push(partitions[i], arr[index]);
-            findValidPartitions(arr, arr_size, partitions, nr_of_parts, index + 1, empty_count + 1);
-            stack_pop(partitions[i]);
+            stack_push(parts[i], arr[idx]);
+            findValidPartitions(arr, arr_size, best_parts, parts, parts_nr, idx + 1, empty_cnt + 1);
+            stack_pop(parts[i]);
             break;
         }
         else
         {
-            stack_push(partitions[i], arr[index]);
-            findValidPartitions(arr, arr_size, partitions, nr_of_parts, index + 1, empty_count);
-            stack_pop(partitions[i]);
+            stack_push(parts[i], arr[idx]);
+            findValidPartitions(arr, arr_size, best_parts, parts, parts_nr, idx + 1, empty_cnt);
+            stack_pop(parts[i]);
         }
     }
 }
@@ -107,11 +108,14 @@ int main(int argc, char *argv[])
     }
 
     // Prepare containers to store all valid partitions
-    stack_st *partitions[MATRIX_HEIGHT]; // array os stacks {stack1, stack2}
+    stack_st *partitions[MATRIX_HEIGHT];      // helper container for recursion
+    stack_st *best_partitions[MATRIX_HEIGHT]; // container to store best combination
     for (int i = 0; i < MATRIX_HEIGHT; i++)
     {
         partitions[i] = malloc(sizeof(stack_st));
+        best_partitions[i] = malloc(sizeof(stack_st));
         stack_init(partitions[i]);
+        stack_init(best_partitions[i]);
     }
 
     // Look over all partitions, find the best (densest) one
@@ -122,7 +126,7 @@ int main(int argc, char *argv[])
             stack_clear(partitions[i]);
         }
 
-        findValidPartitions(lines, line_count, partitions, nr_of_parts, 0, 0);
+        findValidPartitions(lines, line_count, best_partitions, partitions, nr_of_parts, 0, 0);
     }
 
     // Free allocated memory
@@ -133,6 +137,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < MATRIX_HEIGHT; i++)
     {
         free(partitions[i]);
+        free(best_partitions[i]);
     }
 
     return 0;
