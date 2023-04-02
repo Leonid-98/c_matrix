@@ -2,105 +2,79 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 #include "main.h"
 #include "stack.h"
+#include "file_parser.h"
+#include "logic.h"
 
-ErrorCode parseLines(char *filename, char **result, int *line_count)
-{
-    if (filename == NULL)
-    {
-        return ERROR_NO_FILE_SPECIFIED;
-    }
-
-    FILE *file_ptr = fopen(filename, "r");
-    if (file_ptr == NULL)
-    {
-        return ERROR_CANT_OPEN_FILE;
-    }
-
-    int char_count = 0;
-    char read_buffer[MAX_CHARS];
-
-    int i = 0;
-    while (fgets(read_buffer, MAX_CHARS, file_ptr) != NULL)
-    {
-        if (read_buffer[strlen(read_buffer) - 1] == '\n')
-        {
-            read_buffer[strlen(read_buffer) - 1] = '\0';
-        }
-
-        if (strlen(read_buffer) > 0 && isalnum(read_buffer[0]))
-        {
-            if (strlen(read_buffer) > MATRIX_WIDTH)
-            {
-                fclose(file_ptr);
-                return ERROR_EXCEEDED_WORD_LENGTH;
-            }
-
-            strcpy(result[i], read_buffer);
-            char_count += strlen(result[i]);
-            i++;
-        }
-    }
-    *line_count = i;
-    fclose(file_ptr);
-
-    if (char_count == 0)
-    {
-        return ERROR_EMPTY_FILE;
-    }
-    else if (char_count > MATRIX_WIDTH * MATRIX_HEIGHT)
-    {
-        return ERROR_EXCEEDED_TOTAL_LENGTH;
-    }
-
-    return SUCCESS;
-}
-
-void setPartitions(char **arr, int arr_size, stack_st **set_partitions, int nr_of_parts, int index, int nos)
+/**
+ * @brief This function takes as an argument an array of strings (2d char array) and stores to the `result`
+ * all such partitions, how array can be splitted and fit into the matrix.
+ * By split, I mean set partition: arr = {aa, b, cccc} can be splitted for example as {{aa, b}, {cccc}}, and each element will fit into
+ * the matrix
+ * 
+ * @param arr all parsed words from file
+ * @param arr_size line count
+ * @param partitions splitted pieces of `arr`
+ * @param nr_of_parts into how many pieces `arr` would be splitted
+ * @param index curren inspected element
+ * @param emptyCount helps to prevent repeats such {{a}, {b, c}} and {{b, c}, {a}}. Will be counter only one such combination
+ */
+void findValidPartitions(char **arr, int arr_size, stack_st **partitions, int nr_of_parts, int index, int emptyCount)
 {
     if (index == arr_size)
     {
-        if (nos == nr_of_parts)
+        if (emptyCount == nr_of_parts)
         {
+            bool isFits = true;
             for (int i = 0; i < nr_of_parts; i++)
             {
-                stack_print(set_partitions[i]);
+                isFits = isFits && stack_strlen(partitions[i]) <= MATRIX_WIDTH;
             }
-            printf("\n");
+
+            if (isFits)
+            {
+                for (int i = 0; i < nr_of_parts; i++)
+                {
+                    stack_print(partitions[i]);
+                }
+                printf("\n");
+            }
         }
         return;
     }
 
     for (int i = 0; i < nr_of_parts; i++)
     {
-        if (stack_isEmpty(set_partitions[i]))
+        if (stack_isEmpty(partitions[i]))
         {
-            stack_push(set_partitions[i], arr[index]);
-            setPartitions(arr, arr_size, set_partitions, nr_of_parts, index + 1, nos + 1);
-            stack_pop(set_partitions[i]);
+            stack_push(partitions[i], arr[index]);
+            findValidPartitions(arr, arr_size, partitions, nr_of_parts, index + 1, emptyCount + 1);
+            stack_pop(partitions[i]);
             break;
         }
         else
         {
-            stack_push(set_partitions[i], arr[index]);
-            setPartitions(arr, arr_size, set_partitions, nr_of_parts, index + 1, nos);
-            stack_pop(set_partitions[i]);
+            stack_push(partitions[i], arr[index]);
+            findValidPartitions(arr, arr_size, partitions, nr_of_parts, index + 1, emptyCount);
+            stack_pop(partitions[i]);
         }
     }
 }
 
 int main(int argc, char *argv[])
 {
+    // Parse file content into 2d string array - `lines`
     char *filename = argv[1];
-    char *lines[MAX_LINES];
-    for (int i = 0; i < MAX_LINES; i++)
+    char *lines[FILE_BUFF_SIZE];
+    for (int i = 0; i < FILE_BUFF_SIZE; i++)
     {
-        lines[i] = malloc(MAX_CHARS * sizeof(char));
+        lines[i] = malloc(FILE_BUFF_SIZE * sizeof(char));
     }
     int line_count = 0;
-    ErrorCode error_code = parseLines(filename, lines, &line_count);
+    FileParser_Status error_code = fileParser_ReadFile(filename, lines, &line_count);
 
     switch (error_code)
     {
@@ -128,31 +102,33 @@ int main(int argc, char *argv[])
         break;
     }
 
-    stack_st *set_partitions[MATRIX_HEIGHT];
+    // Prepare containers to store all possible partitions of a array
+    stack_st *partitions[MATRIX_HEIGHT];
     for (int i = 0; i < MATRIX_HEIGHT; i++)
     {
-        set_partitions[i] = malloc(sizeof(stack_st));
-        stack_init(set_partitions[i]);
+        partitions[i] = malloc(sizeof(stack_st));
+        stack_init(partitions[i]);
     }
 
+    // Look over all partitions, find the best (densest) one
     for (int nr_of_parts = 1; nr_of_parts <= line_count; nr_of_parts++)
     {
         for (int i = 0; i < MATRIX_HEIGHT; i++)
         {
-            stack_clear(set_partitions[i]);
+            stack_clear(partitions[i]);
         }
 
-        setPartitions(lines, line_count, set_partitions, nr_of_parts, 0, 0);
+        findValidPartitions(lines, line_count, partitions, nr_of_parts, 0, 0);
     }
 
     // Free allocated memory
-    for (int i = 0; i < line_count; i++)
+    for (int i = 0; i < FILE_BUFF_SIZE; i++)
     {
         free(lines[i]);
     }
     for (int i = 0; i < MATRIX_HEIGHT; i++)
     {
-        free(set_partitions[i]);
+        free(partitions[i]);
     }
 
     return 0;

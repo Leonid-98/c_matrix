@@ -49,6 +49,16 @@ void stack_clear(stack_st *stack)
     stack->stack_ptr = -1;
 }
 
+int stack_strlen(stack_st *stack) 
+{
+    int sum = 0;
+    for (int i = stack->stack_ptr; i >= 0; i--)
+    {
+        sum += strlen(stack->data[i]);
+    }
+    return sum;
+}
+
 void stack_print(stack_st *stack)
 {
     if (stack_isEmpty(stack))
