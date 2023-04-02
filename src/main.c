@@ -40,6 +40,10 @@ void findValidPartitions(char **arr, int arr_size, stack_st **partitions, int nr
                 {
                     stack_print(partitions[i]);
                 }
+                for (int i = 0; i < nr_of_parts; i++)
+                {
+                    printf("(%d)", stack_strlen(partitions[i]));
+                }
                 printf("\n");
             }
         }
