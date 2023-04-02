@@ -10,11 +10,13 @@ typedef struct
     int stack_ptr;
 } stack_st;
 
-void init(stack_st *stack);
-int is_empty(stack_st *stack);
-int is_full(stack_st *stack);
-void push(stack_st *stack, char *str);
-char *pop(stack_st *stack);
-void print_stack(stack_st *stack);
+void stack_init(stack_st *stack);
+int stack_isEmpty(stack_st *stack);
+int stack_isFull(stack_st *stack);
+void stack_push(stack_st *stack, char *str);
+char *stack_pop(stack_st *stack);
+void stack_clear(stack_st *stack);
+void stack_free(stack_st *stack);
+void stack_print(stack_st *stack);
 
 #endif

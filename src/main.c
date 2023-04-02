@@ -32,7 +32,7 @@ ErrorCode parseLines(char *filename, char result[][MAX_CHARS], int *line_count)
 
         if (strlen(read_buffer) > 0 && isalnum(read_buffer[0]))
         {
-            if (strlen(read_buffer) > 10)
+            if (strlen(read_buffer) > MATRIX_WIDTH)
             {
                 fclose(file_ptr);
                 return ERROR_EXCEEDED_WORD_LENGTH;
@@ -50,7 +50,7 @@ ErrorCode parseLines(char *filename, char result[][MAX_CHARS], int *line_count)
     {
         return ERROR_EMPTY_FILE;
     }
-    else if (char_count > 100)
+    else if (char_count > MATRIX_WIDTH * MATRIX_HEIGHT)
     {
         return ERROR_EXCEEDED_TOTAL_LENGTH;
     }
@@ -58,26 +58,41 @@ ErrorCode parseLines(char *filename, char result[][MAX_CHARS], int *line_count)
     return SUCCESS;
 }
 
-void setPartitions(char arr[][MAX_CHARS], int arr_size, int index, stack_st** partitions, int nr_of_partitions)
+void setPartitions(char arr[][MAX_CHARS], int arr_size, stack_st **set_partitions, int nr_of_parts, int index, int nos)
 {
-    if (index == arr_size) {
-        print_stack(partitions[0]);
-        print_stack(partitions[1]);
-        printf("\n");
+    if (index == arr_size)
+    {
+        if (nos == nr_of_parts)
+        {
+            for (int i = 0; i < nr_of_parts; i++)
+            {
+                stack_print(set_partitions[i]);
+            }
+            printf("\n");
+        }
         return;
     }
 
-    for (int i = 0; i < nr_of_partitions; i++)
+    for (int i = 0; i < nr_of_parts; i++)
     {
-        push(partitions[i], arr[index]);
-        setPartitions(arr, arr_size, index + 1, partitions, nr_of_partitions);
-        pop(partitions[i]);
+        if (stack_isEmpty(set_partitions[i]))
+        {
+            stack_push(set_partitions[i], arr[index]);
+            setPartitions(arr, arr_size, set_partitions, nr_of_parts, index + 1, nos + 1);
+            stack_pop(set_partitions[i]);
+            break;
+        }
+        else
+        {
+            stack_push(set_partitions[i], arr[index]);
+            setPartitions(arr, arr_size, set_partitions, nr_of_parts, index + 1, nos);
+            stack_pop(set_partitions[i]);
+        }
     }
 }
 
 int main(int argc, char *argv[])
 {
-    
     char *filename = argv[1];
     char lines[MAX_LINES][MAX_CHARS];
     int line_count = 0;
@@ -108,15 +123,23 @@ int main(int argc, char *argv[])
     default:
         break;
     }
+    
+    stack_st *set_partitions[MATRIX_HEIGHT];
+    for (int i = 0; i < MATRIX_HEIGHT; i++)
+    {
+        set_partitions[i] = malloc(sizeof(stack_st));
+        stack_init(set_partitions[i]);
+    }
 
-    const int K = 3;
+    for (int nr_of_parts = 1; nr_of_parts <= line_count; nr_of_parts++)
+    {
+        for (int i = 0; i < MATRIX_HEIGHT; i++)
+        {
+            stack_free(set_partitions[i]);
+        }
 
-    stack_st s1, s2, s3;
-    init(&s1);
-    init(&s2);
-    init(&s3);
-    stack_st* stacks[3] = {&s1, &s2, &s3};
+        setPartitions(lines, line_count, set_partitions, nr_of_parts, 0, 0);
+    }
 
-    setPartitions(lines, line_count, 0, stacks, K);
     return 0;
 }

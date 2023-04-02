@@ -4,24 +4,24 @@
 
 #include "stack.h"
 
-void init(stack_st *stack)
+void stack_init(stack_st *stack)
 {
     stack->stack_ptr = -1;
 }
 
-int is_empty(stack_st *stack)
+int stack_isEmpty(stack_st *stack)
 {
     return stack->stack_ptr == -1;
 }
 
-int is_full(stack_st *stack)
+int stack_isFull(stack_st *stack)
 {
     return stack->stack_ptr == MAX_STACK_SIZE - 1;
 }
 
-void push(stack_st *stack, char *str)
+void stack_push(stack_st *stack, char *str)
 {
-    if (is_full(stack))
+    if (stack_isFull(stack))
     {
         printf("Stack overflow!\n");
         return;
@@ -31,9 +31,9 @@ void push(stack_st *stack, char *str)
     strcpy(stack->data[stack->stack_ptr], str);
 }
 
-char *pop(stack_st *stack)
+char *stack_pop(stack_st *stack)
 {
-    if (is_empty(stack))
+    if (stack_isEmpty(stack))
     {
         printf("Stack underflow!\n");
         return NULL;
@@ -44,9 +44,14 @@ char *pop(stack_st *stack)
     return str;
 }
 
-void print_stack(stack_st *stack)
+void stack_free(stack_st *stack)
 {
-    if (is_empty(stack))
+    stack->stack_ptr = -1;
+}
+
+void stack_print(stack_st *stack)
+{
+    if (stack_isEmpty(stack))
     {
         printf("[]");
         return;
