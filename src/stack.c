@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "main.h"
 #include "stack.h"
 
 void stack_init(stack_st *stack)
@@ -23,8 +24,8 @@ void stack_push(stack_st *stack, char *str)
 {
     if (stack_isFull(stack))
     {
-        printf("Stack overflow!\n");
-        return;
+        fprintf(stderr, "Stack error: overflow\n");
+        exit(ERROR_STACK_OVERFLOW);
     }
 
     stack->stack_ptr++;
@@ -36,7 +37,7 @@ char *stack_pop(stack_st *stack)
     if (stack_isEmpty(stack))
     {
         fprintf(stderr, "Stack error: underflow\n");
-        return NULL;
+        exit(ERROR_STACK_UNDERFLOW);
     }
 
     char *str = stack->data[stack->stack_ptr];
@@ -86,17 +87,4 @@ void stack_print(stack_st *stack)
         }
     }
     printf("]");
-}
-
-void stack_printConcatenated(stack_st *stack)
-{
-    if (stack_isEmpty(stack))
-    {
-        return;
-    }
-
-    for (int i = stack->stack_ptr; i >= 0; i--)
-    {
-        printf("%s", stack->data[i]);
-    }
 }

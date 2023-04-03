@@ -19,9 +19,9 @@ int main(int argc, char *argv[])
         lines[i] = malloc(FILE_BUFF_SIZE * sizeof(char));
     }
     int line_count = 0;
-    Status_Code error_code = fileParser_ReadFile(filename, lines, &line_count);
+    Status_Code parser_status = fileParser_ReadFile(filename, lines, &line_count);
 
-    switch (error_code)
+    switch (parser_status)
     {
     case ERROR_NO_FILE_SPECIFIED:
         fprintf(stderr, "File error: No file specified");
@@ -59,19 +59,20 @@ int main(int argc, char *argv[])
     }
 
     // Look over all partitions, find the best (densest) one
+    bool isFit;
     for (int nr_of_parts = 1; nr_of_parts <= line_count; nr_of_parts++)
     {
-        matrix_findBestPartition(lines, line_count, best_partitions, partitions, nr_of_parts, 0, 0);
+        isFit = matrix_findBestPartition(lines, line_count, best_partitions, partitions, nr_of_parts, 0, 0);
     }
 
-    printf("\n===============\n");
-    for (int i = 0; i < MATRIX_HEIGHT; i++)
+    if (isFit)
     {
-        stack_print(best_partitions[i]);
-        printf("\n");
+        matrix_printBestPartitions(best_partitions);
     }
-    printf("\n===============\n");
-    matrix_printBestPartitions(best_partitions);
+    else
+    {
+        printf("Can't fit all elements!\n");
+    }
 
     // Free allocated memory
     for (int i = 0; i < FILE_BUFF_SIZE; i++)
@@ -84,5 +85,5 @@ int main(int argc, char *argv[])
         free(best_partitions[i]);
     }
 
-    return 0;
+    return SUCCESS;
 }
