@@ -11,7 +11,6 @@
 
 int main(int argc, char *argv[])
 {
-    // Parse file content into 2d string array - `lines`
     char *filename = argv[1];
     char *lines[FILE_BUFF_SIZE];
     for (int i = 0; i < FILE_BUFF_SIZE; i++)
@@ -47,7 +46,6 @@ int main(int argc, char *argv[])
         break;
     }
 
-    // Prepare containers to store all valid partitions
     stack_st *partitions[MATRIX_HEIGHT];      // helper container for recursion
     stack_st *best_partitions[MATRIX_HEIGHT]; // container to store best combination
     for (int i = 0; i < MATRIX_HEIGHT; i++)
@@ -58,13 +56,11 @@ int main(int argc, char *argv[])
         stack_init(best_partitions[i]);
     }
 
-    // Look over all partitions, find the best (densest) one
     bool isFit;
     for (int nr_of_parts = 1; nr_of_parts <= line_count; nr_of_parts++)
     {
         isFit = matrix_findBestPartition(lines, line_count, best_partitions, partitions, nr_of_parts, 0, 0);
     }
-
     if (isFit)
     {
         matrix_printBestPartitions(best_partitions);
@@ -74,7 +70,6 @@ int main(int argc, char *argv[])
         printf("Can't fit all elements!\n");
     }
 
-    // Free allocated memory
     for (int i = 0; i < FILE_BUFF_SIZE; i++)
     {
         free(lines[i]);

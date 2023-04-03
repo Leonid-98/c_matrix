@@ -1,4 +1,10 @@
-
+/**
+ * @file matrix.h
+ * @author Leonid Tšigrinski
+ * @brief 
+ * 
+ * Matrix responds for all algorithmic actions: finding best fit and printing in the right order
+ */
 
 #ifndef MATRIX_H
 #define MATRIX_H

@@ -1,3 +1,13 @@
+/**
+ * @file file_parser.h
+ * @author Leonid Tšigrinski
+ * @brief 
+ * 
+ * Parses content of a file into char array. 
+ * NB!!! Be careful of white spaces inside lines with words. 
+ * Fully empty or white-spaced lines are ignored, but "normal" spaces inside words considered as part of the word
+ */
+
 #ifndef FILE_PARSER_H
 #define FILE_PARSER_H
 

@@ -21,6 +21,3 @@ clean:
 	@rm -rf $(EXEC) $(OUT_DIR)/*
 
 build: $(EXEC)
-
-run: build
-	main.exe file.txt

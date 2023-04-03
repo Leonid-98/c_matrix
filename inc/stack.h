@@ -1,3 +1,11 @@
+/**
+ * @file stack.h
+ * @author Leonid Tšigrinski
+ * @brief 
+ * 
+ * Using stack as dynamic data structure to hold found string combinations
+ */
+
 #ifndef STACK_H
 #define STACK_H
 

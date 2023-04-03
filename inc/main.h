@@ -1,3 +1,9 @@
+/**
+ * @file main.h
+ * @author Leonid Tšigrinski
+ * @brief 
+ */
+
 #ifndef MAIN_H
 #define MAIN_H
 
