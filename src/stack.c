@@ -9,12 +9,12 @@ void stack_init(stack_st *stack)
     stack->stack_ptr = -1;
 }
 
-int stack_isEmpty(stack_st *stack)
+bool stack_isEmpty(stack_st *stack)
 {
     return stack->stack_ptr == -1;
 }
 
-int stack_isFull(stack_st *stack)
+bool stack_isFull(stack_st *stack)
 {
     return stack->stack_ptr == MAX_STACK_SIZE - 1;
 }
@@ -35,7 +35,7 @@ char *stack_pop(stack_st *stack)
 {
     if (stack_isEmpty(stack))
     {
-        printf("Stack underflow!\n");
+        fprintf(stderr, "Stack error: underflow\n");
         return NULL;
     }
 
@@ -86,4 +86,17 @@ void stack_print(stack_st *stack)
         }
     }
     printf("]");
+}
+
+void stack_printConcatenated(stack_st *stack)
+{
+    if (stack_isEmpty(stack))
+    {
+        return;
+    }
+
+    for (int i = stack->stack_ptr; i >= 0; i--)
+    {
+        printf("%s", stack->data[i]);
+    }
 }

@@ -1,21 +1,23 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "matrix.h"
 
-/** @brief Helper function
- Compares two partitions and updates the best partition based on the following criteria:
- * - If the partition is smaller, that best, it becomes the new best.
- * - If the partition is the same, we need to consider the best partition is the one with bigger numbers
- *   Point is that partition (10, 10, 8) is better than (10, 9, 9)
- *      For that purpose, I'll use weighted mean value: sum(a*a) / sum(a).
- *      But since sum (strlen) of the both cases would be the same, I can simply compare sum of squares. Bigger one wins
+void matrix_debugPrint(stack_st **stack_arr, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        stack_print(stack_arr[i]);
+    }
+    for (int i = 0; i < size; i++)
+    {
+        printf("(%d)", stack_strlen(stack_arr[i]));
+    }
+    printf("\n");
+}
 
- * @param comparable_part Potential new best
- * @param comp_size Comparable size
- * @param best_part Existing best
- */
-static void priv_compareBestPartition(stack_st **comparable_part, int comp_size, stack_st **best_part)
+void matrix_compareBestPartition(stack_st **comparable_part, int comp_size, stack_st **best_part)
 {
     static int best_size = 0;
 
@@ -50,13 +52,15 @@ static void priv_compareBestPartition(stack_st **comparable_part, int comp_size,
     }
 }
 
-void matrix_findBestPartition(char **arr, int arr_size, stack_st **best_parts, stack_st **parts, int parts_nr, int idx, int empty_cnt)
+bool matrix_findBestPartition(char **arr, int arr_size, stack_st **best_parts, stack_st **parts, int parts_nr, int idx, int empty_cnt)
 {
+    bool isFits = false;
+
     if (idx == arr_size) // Recursion base. All elements of arr is checked
     {
         if (empty_cnt == parts_nr) // Check only partitions, where no parts are empty
         {
-            bool isFits = true;
+            isFits = true;
             for (int i = 0; i < parts_nr; i++)
             {
                 isFits = isFits && stack_strlen(parts[i]) <= MATRIX_WIDTH;
@@ -64,22 +68,11 @@ void matrix_findBestPartition(char **arr, int arr_size, stack_st **best_parts, s
 
             if (isFits) // Check only partitions, that can be fitted into the matrix
             {
-                priv_compareBestPartition(parts, parts_nr, best_parts);
-
-                /* Uncomment, if you want to see all found partitions
-                for (int i = 0; i < parts_nr; i++)
-                {
-                    stack_print(parts[i]);
-                }
-                for (int i = 0; i < parts_nr; i++)
-                {
-                    printf("(%d)", stack_strlen(parts[i]));
-                }
-                printf("\n");
-                */
+                matrix_compareBestPartition(parts, parts_nr, best_parts);
+                // matrix_debugPrint(parts, parts_nr); // Uncomment, if want to see all found partitions
             }
         }
-        return;
+        return isFits;
     }
 
     for (int i = 0; i < parts_nr; i++) // Recursion step. Number os splits in recursive tree == `parts_nr`
@@ -87,15 +80,76 @@ void matrix_findBestPartition(char **arr, int arr_size, stack_st **best_parts, s
         if (stack_isEmpty(parts[i])) // Branching only one time, if checked part is empty.
         {                            // Prevent repeating combinations (i.e. will checked {{a}, {b, c}} and not {{b, c}, {a}}
             stack_push(parts[i], arr[idx]);
-            matrix_findBestPartition(arr, arr_size, best_parts, parts, parts_nr, idx + 1, empty_cnt + 1);
+            isFits = isFits || matrix_findBestPartition(arr, arr_size, best_parts, parts, parts_nr, idx + 1, empty_cnt + 1);
             stack_pop(parts[i]);
             break;
         }
         else
         {
             stack_push(parts[i], arr[idx]);
-            matrix_findBestPartition(arr, arr_size, best_parts, parts, parts_nr, idx + 1, empty_cnt);
+            isFits = isFits || matrix_findBestPartition(arr, arr_size, best_parts, parts, parts_nr, idx + 1, empty_cnt);
             stack_pop(parts[i]);
         }
+    }
+
+    return isFits;
+}
+
+void matrix_printBestPartitions(stack_st **best_partitions)
+{
+    int non_empty_count = 0;
+    for (int i = 0; i < MATRIX_HEIGHT; i++)
+    {
+        if (!stack_isEmpty(best_partitions[i]))
+        {
+            non_empty_count++;
+        }
+    }
+
+    // Sort the non-empty stacks by stack_strlen
+    for (int i = 0; i < non_empty_count; i++)
+    {
+        int max_strlen = 0;
+        int max_index = -1;
+        for (int j = i; j < MATRIX_HEIGHT; j++)
+        {
+            if (!stack_isEmpty(best_partitions[j]))
+            {
+                int strlen = stack_strlen(best_partitions[j]);
+                if (strlen > max_strlen)
+                {
+                    max_strlen = strlen;
+                    max_index = j;
+                }
+            }
+        }
+        stack_st *tmp = best_partitions[i];
+        best_partitions[i] = best_partitions[max_index];
+        best_partitions[max_index] = tmp;
+    }
+
+    // Print matrix
+    for (int i = MATRIX_HEIGHT - 1; i >= 0; i--)
+    {
+        if (stack_isEmpty(best_partitions[i]))
+        {
+            printf("%s", MATRIX_EMPTY_STRING);
+        }
+        else
+        {
+            unsigned int space_left = MATRIX_WIDTH;
+            while (!stack_isEmpty(best_partitions[i]))
+            {
+                char *str = stack_pop(best_partitions[i]);
+                printf("%s", str);
+                space_left -= strlen(str);
+            }
+            while (space_left)
+            {
+                printf("%c", MATRIX_EMPTY_CHAR);
+                space_left--;
+            }
+        }
+        printf("\n");
     }
 }

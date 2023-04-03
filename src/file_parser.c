@@ -4,7 +4,7 @@
 
 #include "file_parser.h"
 
-FileParser_Status fileParser_ReadFile(char *filename, char **result, int *line_count)
+Status_Code fileParser_ReadFile(char *filename, char **result, int *line_count)
 {
     if (filename == NULL)
     {

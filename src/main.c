@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
         lines[i] = malloc(FILE_BUFF_SIZE * sizeof(char));
     }
     int line_count = 0;
-    FileParser_Status error_code = fileParser_ReadFile(filename, lines, &line_count);
+    Status_Code error_code = fileParser_ReadFile(filename, lines, &line_count);
 
     switch (error_code)
     {
@@ -70,6 +70,8 @@ int main(int argc, char *argv[])
         stack_print(best_partitions[i]);
         printf("\n");
     }
+    printf("\n===============\n");
+    matrix_printBestPartitions(best_partitions);
 
     // Free allocated memory
     for (int i = 0; i < FILE_BUFF_SIZE; i++)
