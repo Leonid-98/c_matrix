@@ -40,7 +40,7 @@ void matrix_compareBestPartition(stack_st **comparable_part, int comp_size, stac
             comp_sum_squared = stack_strlen(comparable_part[i]) * stack_strlen(comparable_part[i]);
             best_sum_squared = stack_strlen(best_part[i]) * stack_strlen(best_part[i]);
         }
-        if (comp_sum_squared > best_sum_squared)
+        if (comp_sum_squared < best_sum_squared)
         {
             // Overwrite best combination
             best_size = comp_size;

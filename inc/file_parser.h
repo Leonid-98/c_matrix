@@ -11,11 +11,12 @@
 #ifndef FILE_PARSER_H
 #define FILE_PARSER_H
 
-#define FILE_BUFF_SIZE      64
-#define MAX_WORD_LEN        10
-#define MAX_CHAR_COUNT      100
-
 #include "main.h"
+
+#define FILE_BUFF_SIZE      64
+#define MAX_WORD_LEN        MATRIX_WIDTH
+#define MAX_CHAR_COUNT      MATRIX_WIDTH * MATRIX_HEIGHT
+
 
 /**
  * @brief Reads file line by line and stored each word into 2d char array.

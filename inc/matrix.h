@@ -9,11 +9,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#define MATRIX_EMPTY_CHAR       '+'
-#define MATRIX_EMPTY_STRING     "++++++++++"
-#define MATRIX_WIDTH            10
-#define MATRIX_HEIGHT           10
-
+#include "main.h"
 #include "stack.h"
 
 /**
